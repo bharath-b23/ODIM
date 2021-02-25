@@ -25,15 +25,11 @@
 
 - name: Copy helmcharts required for odimra deployment
   copy:
-    src: "{{ item }}"
+    src: "files/helmcharts/{{ helm_chart_name_version }}.tgz"
     dest: "{{ helm_charts_path }}"
     owner: "{{ current_user }}"
     group: "{{ current_user }}"
     mode: 0640
-  loop: "{{ files }}"
-  vars:
-    files:
-      - "files/helmcharts/"
 
 - name: Copy updated kafka data
   copy:
