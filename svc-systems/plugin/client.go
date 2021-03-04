@@ -177,7 +177,7 @@ func (m *multiTargetClient) Post(uri string, body *json.RawMessage) response.RPC
 func (m *multiTargetClient) Patch(uri string, body *json.RawMessage) response.RPC {
 	for _, target := range m.targets {
 		client := m.createClient(target)
-		log.Info("Request received to patch chassis to rack, URI", uri)
+		log.Info("Request received to patch chassis to rack, URI: ", uri)
 		resp := client.Patch(uri, body)
 		switch {
 		case resp.StatusCode == http.StatusNotFound:

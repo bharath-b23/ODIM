@@ -39,7 +39,7 @@ func (c *getChassisCollectionHandler) handle(ctx context.Context) {
 	logging.Debug("Process GetChassisCollection request")
 	searchKey := db.CreateKey("Chassis")
 	keys, err := c.dao.Keys(stdCtx.TODO(), searchKey.WithWildcard().String()).Result()
-	logging.Debug("List of matching chassis entries:", keys)
+	logging.Debug("List of chassis entries:", keys)
 	if err != nil {
 		ctx.StatusCode(http.StatusBadRequest)
 	}
