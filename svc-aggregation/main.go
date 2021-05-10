@@ -94,5 +94,5 @@ func main() {
 	if err = services.Service.Run(); err != nil {
 		log.Fatal("failed to run a service: " + err.Error())
 	}
-
+	go system.PerformPluginHealthCheck()
 }
