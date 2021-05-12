@@ -91,8 +91,7 @@ func PublishEventsToDestination(data interface{}) bool {
 	var uuid string
 	var message common.MessageData
 
-	err = json.Unmarshal([]byte(requestData), &message)
-	if err != nil {
+	if err = json.Unmarshal([]byte(requestData), &message); err != nil {
 		log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
@@ -121,6 +120,12 @@ func PublishEventsToDestination(data interface{}) bool {
 	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	subscriptions, err := evmodel.GetEvtSubscriptions(searchKey)
 	if err != nil {
+		return false
+	}
+
+	err = json.Unmarshal([]byte(requestData), &message)
+	if err != nil {
+		log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
 
