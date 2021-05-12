@@ -405,7 +405,6 @@ func updateSystemPowerState(systemUUID, systemURI, state string) {
 }
 
 func callPluginStartUp(managerAddr, originURI string) {
-	log.Info("calling SendStartUpData")
 	aggregator := aggregatorproto.NewAggregatorService(services.Aggregator, services.Service.Client())
 	_, err := aggregator.SendStartUpData(context.TODO(), &aggregatorproto.SendStartUpDataRequest{
 		PluginAddr: managerAddr,
