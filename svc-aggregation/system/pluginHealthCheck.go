@@ -45,6 +45,7 @@ func (e *ExternalInterface) SendStartUpData(startUpReq *aggregatorproto.SendStar
 // PerformPluginHealthCheck is for checking the status of
 // all the plugins continuously over a configured interval
 func PerformPluginHealthCheck() {
+	log.Info("plugins health check routine started")
 	phc := agcommon.PluginHealthCheckInterface{
 		DecryptPassword: common.DecryptWithPrivateKey,
 	}

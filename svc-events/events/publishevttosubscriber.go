@@ -91,6 +91,18 @@ func PublishEventsToDestination(data interface{}) bool {
 	var uuid string
 	var message common.MessageData
 
+	err = json.Unmarshal([]byte(requestData), &message)
+	if err != nil {
+		log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
+		return false
+	}
+
+	if len(message.Events) == 1 && strings.EqualFold("PluginStarted", message.Events[0].EventType) {
+		log.Info("received plugin started event from ", event.IP)
+		go callPluginStartUp(event.IP, message.Events[0].OriginOfCondition.Oid)
+		return true
+	}
+
 	addFabric(requestData, host)
 	searchKey := evcommon.GetSearchKey(host, evmodel.DeviceSubscriptionIndex)
 	deviceSubscription, err := evmodel.GetDeviceSubscriptions(searchKey)
@@ -109,12 +121,6 @@ func PublishEventsToDestination(data interface{}) bool {
 	searchKey = evcommon.GetSearchKey(host, evmodel.SubscriptionIndex)
 	subscriptions, err := evmodel.GetEvtSubscriptions(searchKey)
 	if err != nil {
-		return false
-	}
-
-	err = json.Unmarshal([]byte(requestData), &message)
-	if err != nil {
-		log.Error("failed to unmarshal the incoming event: ", requestData, " with the error: ", err.Error())
 		return false
 	}
 
@@ -395,5 +401,20 @@ func updateSystemPowerState(systemUUID, systemURI, state string) {
 		return
 	}
 	log.Info("info: system power state update initiated")
+	return
+}
+
+func callPluginStartUp(managerAddr, originURI string) {
+	log.Info("calling SendStartUpData")
+	aggregator := aggregatorproto.NewAggregatorService(services.Aggregator, services.Service.Client())
+	_, err := aggregator.SendStartUpData(context.TODO(), &aggregatorproto.SendStartUpDataRequest{
+		PluginAddr: managerAddr,
+		OriginURI: originURI,
+	})
+	if err != nil {
+		log.Error("failed to send plugin startup data to " + managerAddr + ": " + err.Error())
+		return
+	}
+	log.Info("successfully sent plugin startup data to " + managerAddr)
 	return
 }

@@ -73,6 +73,7 @@ message UpdateSystemStateResponse{
 
 message SendStartUpDataRequest{
         string PluginAddr=1;
+        string OriginURI=2;
 }
 
 message SendStartUpDataResponse{

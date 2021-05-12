@@ -174,6 +174,7 @@ func (phc *PluginHealthCheckInterface) DupPluginConf() {
 	phc.PluginConfig.RetryIntervalInMins = config.Data.PluginStatusPolling.RetryIntervalInMins
 	phc.PluginConfig.ResponseTimeoutInSecs = config.Data.PluginStatusPolling.ResponseTimeoutInSecs
 	phc.PluginConfig.StartUpResouceBatchSize = config.Data.PluginStatusPolling.StartUpResouceBatchSize
+	phc.RootCA = make([]byte, len(config.Data.KeyCertConf.RootCACertificate))
 	copy(phc.RootCA, config.Data.KeyCertConf.RootCACertificate)
 	return
 }
@@ -185,7 +186,7 @@ func GetPluginStatus(plugin agmodel.Plugin) bool {
 	return phc.GetPluginStatus(plugin)
 }
 
-// GetPluginStatus is for fetching the plugin data
+// LookupPlugin is for fetching the plugin data
 // using the plugin address for lookup
 func LookupPlugin(addr string) (agmodel.Plugin, error) {
 	phc := &PluginHealthCheckInterface{}
@@ -214,13 +215,7 @@ func LookupPlugin(addr string) (agmodel.Plugin, error) {
 	}
 
 	for _, plugin := range plugins {
-		pluginHost, pluginPort, err := net.SplitHostPort(plugin.IP)
-		if err != nil {
-			log.Warn("splitting plugin.IP failed with " + err.Error())
-			pluginHost = plugin.IP
-			pluginPort = ""
-		}
-		if (pluginHost == host || pluginHost == resolvedAddr) && (port == pluginPort) {
+		if (plugin.IP == host || plugin.IP == resolvedAddr) && (plugin.Port == port) {
 			return plugin, nil
 		}
 	}
@@ -269,6 +264,7 @@ func (phc *PluginHealthCheckInterface) GetPluginStatus(plugin agmodel.Plugin) bo
 	status, _, _, err := pluginStatus.CheckStatus()
 	if err != nil {
 		log.Error("failed to get the status of plugin " + plugin.ID + err.Error())
+		return status
 	}
 	log.Info("Status of plugin " + plugin.ID + " is " + strconv.FormatBool(status))
 	return status
