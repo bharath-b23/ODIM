@@ -264,6 +264,7 @@ func (e *ExternalInterface) addCompute(taskID, targetURI, pluginID string, perce
 	pluginStartUpData[addResourceRequest.ManagerAddress] = agmodel.PluginStartUpData{
 		UserName:    addResourceRequest.UserName,
 		Password:    []byte(addResourceRequest.Password),
+		DeviceUUID:  saveSystem.DeviceUUID,
 		Operation:   "add",
 		RequestType: "delta",
 	}
