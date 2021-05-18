@@ -78,6 +78,7 @@ func PushPluginStartUpData(plugin agmodel.Plugin, startUpData map[string]agmodel
 			startUpMap.PluginStartUpData[server.ManagerAddress] = agmodel.PluginStartUpData{
 				UserName:    server.UserName,
 				Password:    server.Password,
+				DeviceUUID:  server.DeviceUUID,
 				Operation:   "add",
 				RequestType: "full",
 			}
