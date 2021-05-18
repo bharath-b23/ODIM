@@ -273,6 +273,7 @@ func (phc *PluginHealthCheckInterface) GetPluginStatus(plugin agmodel.Plugin) bo
 // GetPluginManagedServers is for fetching the list of servers managed by a plugin
 func (phc *PluginHealthCheckInterface) GetPluginManagedServers(plugin agmodel.Plugin) []agmodel.ServerInfo {
 	if status := phc.GetPluginStatus(plugin); !status {
+		log.Error(plugin.ID + " status check failed")
 		return []agmodel.ServerInfo{}
 	}
 	serversList, err := phc.getAllServers(plugin.ID)
@@ -287,6 +288,7 @@ func (phc *PluginHealthCheckInterface) getAllServers(pluginID string) ([]agmodel
 	var matchedServers []agmodel.ServerInfo
 	allServers, err := getAllSystems()
 	if err != nil {
+		log.Error("failed to get the list of all managed servers " + err.Error())
 		return matchedServers, err
 	}
 	for i := 0; i < len(allServers); i++ {
@@ -318,7 +320,7 @@ func getAllSystems() ([]string, error) {
 	}
 	keysArray, err := conn.GetAllDetails("System")
 	if err != nil {
-		return nil, errors.PackError(errors.UndefinedErrorType, "failed to get list of all the servers: ", err.Error())
+		return nil, errors.PackError(errors.UndefinedErrorType, err.Error())
 	}
 	return keysArray, nil
 }
@@ -332,7 +334,7 @@ func getSingleSystem(id string) (string, error) {
 
 	data, rerr := conn.Read("System", id)
 	if rerr != nil {
-		return "", errors.PackError(rerr.ErrNo(), "failed to fetch details of "+id+" server: ", rerr.Error())
+		return "", errors.PackError(rerr.ErrNo(), rerr.Error())
 	}
 	return data, nil
 }

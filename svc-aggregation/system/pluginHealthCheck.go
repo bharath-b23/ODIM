@@ -65,29 +65,38 @@ func PerformPluginHealthCheck() {
 // PushPluginStartUpData is for sending the plugin startup data
 // when the plugin starts or when a server is added or deleted
 func PushPluginStartUpData(plugin agmodel.Plugin, startUpData map[string]agmodel.PluginStartUpData) error {
+	var serversData []agmodel.StartUpMap
 	if startUpData == nil {
 		phc := agcommon.PluginHealthCheckInterface{
 			DecryptPassword: common.DecryptWithPrivateKey,
 		}
 		phc.DupPluginConf()
 		managedServers := phc.GetPluginManagedServers(plugin)
-		startUpData := agmodel.StartUpMap{}
-		startUpData.PluginStartUpData = make(map[string]agmodel.PluginStartUpData, len(managedServers))
+		startUpMap := agmodel.StartUpMap{}
+		startUpMap.PluginStartUpData = make(map[string]agmodel.PluginStartUpData, len(managedServers))
 		for _, server := range managedServers {
-			startUpData.PluginStartUpData[server.ManagerAddress] = agmodel.PluginStartUpData{
+			startUpMap.PluginStartUpData[server.ManagerAddress] = agmodel.PluginStartUpData{
 				UserName:    server.UserName,
 				Password:    server.Password,
 				Operation:   "add",
 				RequestType: "full",
 			}
 		}
+		serversData = append(serversData, startUpMap)
+	} else {
+		startUpMap := agmodel.StartUpMap{}
+		startUpMap.PluginStartUpData = make(map[string]agmodel.PluginStartUpData, len(startUpData))
+		for k, v := range startUpData {
+			startUpMap.PluginStartUpData[k] = v
+		}
+		serversData = append(serversData, startUpMap)
 	}
 
 	var contactRequest agmodel.PluginContactRequest
 	contactRequest.Plugin = plugin
 	contactRequest.URL = "/ODIM/v1/Startup"
 	contactRequest.HTTPMethodType = http.MethodPost
-	contactRequest.PostBody = startUpData
+	contactRequest.PostBody = serversData
 
 	if strings.EqualFold(plugin.PreferredAuthType, "XAuthToken") {
 		contactRequest.HTTPMethodType = http.MethodPost
