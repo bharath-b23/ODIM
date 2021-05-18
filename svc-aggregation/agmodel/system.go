@@ -117,6 +117,7 @@ type StartUpMap struct {
 type PluginStartUpData struct {
 	UserName               string
 	Password               []byte
+	DeviceUUID             string
 	Operation              string
 	RequestType            string
 	DeviceSubscriptionInfo *DeviceSubscriptionInfo
