@@ -90,10 +90,15 @@ func (e *ExternalInterface) DeleteAggregationSource(req *aggregatorproto.Aggrega
 			index := strings.LastIndexAny(systemURI, "/")
 			resp = e.deleteCompute(systemURI, index)
 		}
+	}
+	if resp.StatusCode != http.StatusOK {
+		return resp
+	}
 
+	if target != nil {
 		plugin, errs := agmodel.GetPluginData(target.PluginID)
 		if errs != nil {
-			log.Error(errs.Error())
+			log.Error("failed to get " + target.PluginID + " plugin info: " + errs.Error())
 			return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, errs.Error(), []interface{}{"plugin", target.PluginID}, nil)
 		}
 		pluginStartUpData := make(map[string]agmodel.PluginStartUpData, 1)
@@ -102,12 +107,10 @@ func (e *ExternalInterface) DeleteAggregationSource(req *aggregatorproto.Aggrega
 			RequestType: "delta",
 		}
 		if err := PushPluginStartUpData(plugin, pluginStartUpData); err != nil {
-			log.Error(err.Error())
+			log.Error("failed to notify device removal to " + target.PluginID + " plugin: " + err.Error())
 		}
 	}
-	if resp.StatusCode != http.StatusOK {
-		return resp
-	}
+
 	// Delete the Aggregation Source
 	dbErr = agmodel.DeleteAggregationSource(req.URL)
 	if dbErr != nil {
