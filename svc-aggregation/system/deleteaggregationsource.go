@@ -90,20 +90,6 @@ func (e *ExternalInterface) DeleteAggregationSource(req *aggregatorproto.Aggrega
 			index := strings.LastIndexAny(systemURI, "/")
 			resp = e.deleteCompute(systemURI, index)
 		}
-
-		plugin, errs := agmodel.GetPluginData(target.PluginID)
-		if errs != nil {
-			log.Error(errs.Error())
-			return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, errs.Error(), []interface{}{"plugin", target.PluginID}, nil)
-		}
-		pluginStartUpData := make(map[string]agmodel.PluginStartUpData, 1)
-		pluginStartUpData[target.ManagerAddress] = agmodel.PluginStartUpData{
-			Operation:   "del",
-			RequestType: "delta",
-		}
-		if err := PushPluginStartUpData(plugin, pluginStartUpData); err != nil {
-			log.Error(err.Error())
-		}
 	}
 	if resp.StatusCode != http.StatusOK {
 		return resp
@@ -115,10 +101,13 @@ func (e *ExternalInterface) DeleteAggregationSource(req *aggregatorproto.Aggrega
 			log.Error("failed to get " + target.PluginID + " plugin info: " + errs.Error())
 			return common.GeneralError(http.StatusNotFound, response.ResourceNotFound, errs.Error(), []interface{}{"plugin", target.PluginID}, nil)
 		}
-		pluginStartUpData := make(map[string]agmodel.PluginStartUpData, 1)
-		pluginStartUpData[target.ManagerAddress] = agmodel.PluginStartUpData{
-			Operation:   "del",
+		pluginStartUpData := &agmodel.PluginStartUpData{
 			RequestType: "delta",
+			Devices: map[string]agmodel.DeviceData{
+				target.DeviceUUID: agmodel.DeviceData{
+					Operation: "del",
+				},
+			},
 		}
 		if err := PushPluginStartUpData(plugin, pluginStartUpData); err != nil {
 			log.Error("failed to notify device removal to " + target.PluginID + " plugin: " + err.Error())
