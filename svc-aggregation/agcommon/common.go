@@ -212,6 +212,7 @@ func LookupHost(addr string) (ip, host, port string, err error) {
 	case len(ips) < 1:
 		err = fmt.Errorf("host lookup gave empty list")
 	default:
+		err = nil
 		ip = ips[0].String()
 	}
 	return

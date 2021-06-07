@@ -505,10 +505,12 @@ func GetSearchKey(key, index string) string {
 // and to perform required action
 func ProcessCtrlMsg(data interface{}) bool {
 	if data == nil {
+		log.Warn("received control message event with empty data")
 		return false
 	}
 	event := data.(common.ControlMessageData)
 	msg, _ := json.Marshal(event.Data)
+	log.Info("received control message event of type:", event.MessageType)
 	if event.MessageType == common.SubscribeEMB {
 		var message common.SubscribeEMBData
 		if err := json.Unmarshal([]byte(msg), &message); err != nil {
