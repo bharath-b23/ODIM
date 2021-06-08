@@ -1030,7 +1030,7 @@ func GetDeviceSubscriptions(hostIP string) (*common.DeviceSubscription, error) {
 	}
 	devSubscription, gerr := conn.GetDeviceSubscription(common.DeviceSubscriptionIndex, hostIP+"*")
 	if gerr != nil {
-		return nil, fmt.Errorf("error while trying to get subscription of device %v", gerr.Error())
+		return nil, fmt.Errorf("error while trying to get device subscription details: %v", gerr.Error())
 	}
 	devSub := strings.Split(devSubscription[0], "::")
 	var deviceSubscription = &common.DeviceSubscription{
@@ -1060,7 +1060,7 @@ func GetEventSubscriptions(key string) ([]string, error) {
 	}
 	subscriptions, gerr := conn.GetEvtSubscriptions(common.SubscriptionIndex, "*"+key+"*")
 	if gerr != nil {
-		return nil, fmt.Errorf("error while trying to get subscription of device %v", gerr.Error())
+		return nil, fmt.Errorf("error while trying to get event subsciption details: %v", gerr.Error())
 	}
 	return subscriptions, nil
 }

@@ -377,14 +377,13 @@ func removeDuplicates(elements []string) []string {
 
 // GetSearchKey will return search key with regular expression for filtering
 func GetSearchKey(key, index string) string {
-	switch index {
-	case common.SubscriptionIndex:
-		return `[^0-9]` + key + `[^0-9]`
-	case common.DeviceSubscriptionIndex:
-		return `[^0-9]` + key + `[^0-9]`
-	default:
-		return key
+	searchKey := key
+	if index == common.SubscriptionIndex {
+		searchKey = `[^0-9]` + key + `[^0-9]`
+	} else if index == common.DeviceSubscriptionIndex {
+		searchKey = key + `[^0-9]`
 	}
+	return searchKey
 }
 
 // GetSubscribedEvtTypes is to get event subscription details
@@ -399,7 +398,9 @@ func GetSubscribedEvtTypes(searchKey string) ([]string, error) {
 		if err := json.Unmarshal([]byte(sub), &subscription); err != nil {
 			return nil, fmt.Errorf("error while unmarshalling event subscription: %v", err.Error())
 		}
-		eventTypes = append(eventTypes, subscription["EventTypes"].([]string)...)
+		for _, evtTyps := range subscription["EventTypes"].([]interface{}) {
+			eventTypes = append(eventTypes, evtTyps.(string))
+		}
 	}
 	eventTypes = removeDuplicates(eventTypes)
 	return eventTypes, nil

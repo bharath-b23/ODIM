@@ -117,15 +117,13 @@ func sharePluginInventory(plugin agmodel.Plugin, resyncSubscription bool) (ret e
 		startIndex += phc.PluginConfig.StartUpResouceBatchSize
 		pluginStartUpData.Devices = make(map[string]agmodel.DeviceData, phc.PluginConfig.StartUpResouceBatchSize)
 		for _, server := range batchedServersData {
-			var evtSubsInfo *agmodel.EventSubscriptionInfo
-			subsID, types, err := agcommon.GetDeviceSubscriptionDetails(server.ManagerAddress)
+			evtSubsInfo := &agmodel.EventSubscriptionInfo{}
+			subsID, evtTypes, err := agcommon.GetDeviceSubscriptionDetails(server.ManagerAddress)
 			if err != nil {
 				log.Error("failed to get event subscription details for " + server.ManagerAddress + ": " + err.Error())
 			} else {
-				evtSubsInfo = &agmodel.EventSubscriptionInfo{
-					Location:   subsID,
-					EventTypes: append(evtSubsInfo.EventTypes, types...),
-				}
+				evtSubsInfo.Location = subsID
+				evtSubsInfo.EventTypes = append(evtSubsInfo.EventTypes, evtTypes...)
 			}
 			pluginStartUpData.Devices[server.DeviceUUID] = agmodel.DeviceData{
 				Address:               server.ManagerAddress,
