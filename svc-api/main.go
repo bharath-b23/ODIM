@@ -16,10 +16,11 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
 	"github.com/ODIM-Project/ODIM/lib-utilities/config"
@@ -151,7 +152,20 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	// TODO: uncomment the following line after the migration
+	config.CollectCLArgs()
+
+	// TODO: remove the InitializeService for GoMicro after the migration
 	err = services.InitializeService(services.APIClient)
+	if err != nil {
+		log.Fatal("service initialisation failed: " + err.Error())
+	}
+
+	// TODO: remove hardcoding of config.CLArgs.RegistryAddress value after the migration
+	// We cannot change the CL arguments for svc-api until migration is complete
+	config.CLArgs.RegistryAddress = "etcd:2379"
+
+	err = services.InitializeClient(services.APIClient)
 	if err != nil {
 		log.Fatal("service initialisation failed: " + err.Error())
 	}

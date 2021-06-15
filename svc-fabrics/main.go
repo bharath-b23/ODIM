@@ -14,8 +14,9 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/ODIM-Project/ODIM/lib-rest-client/pmbhandle"
 	"github.com/ODIM-Project/ODIM/lib-utilities/common"
@@ -38,6 +39,8 @@ func main() {
 	if err := config.SetConfiguration(); err != nil {
 		log.Fatal("Error while trying set up configuration: " + err.Error())
 	}
+
+	config.CollectCLArgs()
 
 	if err := common.CheckDBConnection(); err != nil {
 		log.Fatal("error while trying to check DB connection health: " + err.Error())
