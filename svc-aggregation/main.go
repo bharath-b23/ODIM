@@ -75,7 +75,7 @@ func main() {
 	}
 
 	aggregator := rpc.GetAggregator()
-	aggregatorproto.RegisterAggregatorHandler(services.Service.Server(), aggregator)
+	aggregatorproto.RegisterAggregatorServer(services.ODIMService.Server(), aggregator)
 
 	// Rediscover the Resources by looking in OnDisk DB, populate the resources in InMemory DB
 	//This happens only if the InMemory DB lost it contents due to DB reboot or host VM reboot.
@@ -97,5 +97,4 @@ func main() {
 	if err = services.Service.Run(); err != nil {
 		log.Fatal("failed to run a service: " + err.Error())
 	}
-
 }
