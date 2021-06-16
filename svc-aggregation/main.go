@@ -69,8 +69,7 @@ func main() {
 		log.Fatal("error while trying add connection method: " + err.Error())
 	}
 
-	err := services.InitializeService(services.Aggregator)
-	if err != nil {
+	if err := services.InitializeService(services.Aggregator); err != nil {
 		log.Fatal("fatal: error while trying to initialize service: " + err.Error())
 	}
 
@@ -89,12 +88,14 @@ func main() {
 		UpdateTask:      system.UpdateTaskData,
 	}
 	go p.RediscoverResources()
+
 	agcommon.ConfigFilePath = os.Getenv("CONFIG_FILE_PATH")
 	if agcommon.ConfigFilePath == "" {
 		log.Fatal("error: no value get the environment variable CONFIG_FILE_PATH")
 	}
 	go agcommon.TrackConfigFileChanges(connectionMethoodInterface)
-	if err = services.Service.Run(); err != nil {
+
+	if err := services.ODIMService.Run(); err != nil {
 		log.Fatal("failed to run a service: " + err.Error())
 	}
 }
