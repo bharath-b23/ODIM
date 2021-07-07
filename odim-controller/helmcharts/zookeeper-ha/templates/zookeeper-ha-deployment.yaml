@@ -5,8 +5,9 @@ metadata:
   name: zookeeper1
   namespace: {{ .Values.odimra.namespace }}
   labels:
-    app: odim-ra
-    unit: zookeeper
+    app: zookeeper
+    instance: zookeeper1
+    deployment: odim-ra
   annotations:
     secret.reloader.stakater.com/reload: "zookeeper-secret"
 spec:
@@ -14,13 +15,19 @@ spec:
   template:
     metadata:
       labels:
-        app: odim-ra
-        unit: zookeeper
-        parentdeployment: odim-zookeeper
+        app: zookeeper
+        instance: zookeeper1
+        parentdeployment: odim-ra
     spec:
       hostname: zookeeper1
       subdomain: zookeeper
       affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "node-role.kubernetes.io/master"
+                operator: Exists
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -81,9 +88,9 @@ spec:
             claimName: zookeeper-conf-pvc
   selector:
     matchLabels:
-      app: odim-ra
-      unit: zookeeper
-      parentdeployment: odim-zookeeper
+      app: zookeeper
+      instance: zookeeper1
+      parentdeployment: odim-ra
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -91,8 +98,9 @@ metadata:
   name: zookeeper2
   namespace: {{ .Values.odimra.namespace }}
   labels:
-    app: odim-ra
-    unit: zookeeper
+    app: zookeeper
+    instance: zookeeper2
+    deployment: odim-ra
   annotations:
     secret.reloader.stakater.com/reload: "zookeeper-secret"
 spec:
@@ -100,9 +108,9 @@ spec:
   template:
     metadata:
       labels:
-        app: odim-ra
-        unit: zookeeper
-        parentdeployment: odim-zookeeper
+        app: zookeeper
+        instance: zookeeper2
+        parentdeployment: odim-ra
     spec:
       hostname: zookeeper2
       subdomain: zookeeper
@@ -111,6 +119,12 @@ spec:
           image: busybox:1.33
           command: ['sh', '-c', 'sleep 1']
       affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "node-role.kubernetes.io/master"
+                operator: Exists
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -171,9 +185,9 @@ spec:
             claimName: zookeeper-conf-pvc
   selector:
     matchLabels:
-      app: odim-ra
-      unit: zookeeper
-      parentdeployment: odim-zookeeper
+      app: zookeeper
+      instance: zookeeper2
+      parentdeployment: odim-ra
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -181,8 +195,9 @@ metadata:
   name: zookeeper3
   namespace: {{ .Values.odimra.namespace }}
   labels:
-    app: odim-ra
-    unit: zookeeper
+    app: zookeeper
+    instance: zookeeper3
+    deployment: odim-ra
   annotations:
     secret.reloader.stakater.com/reload: "zookeeper-secret"
 spec:
@@ -190,9 +205,9 @@ spec:
   template:
     metadata:
       labels:
-        app: odim-ra
-        unit: zookeeper
-        parentdeployment: odim-zookeeper
+        app: zookeeper
+        instance: zookeeper3
+        parentdeployment: odim-ra
     spec:
       hostname: zookeeper3
       subdomain: zookeeper
@@ -201,6 +216,12 @@ spec:
           image: busybox:1.33
           command: ['sh', '-c', 'sleep 3']
       affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "node-role.kubernetes.io/master"
+                operator: Exists
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -261,6 +282,6 @@ spec:
             claimName: zookeeper-conf-pvc
   selector:
     matchLabels:
-      app: odim-ra
-      unit: zookeeper
-      parentdeployment: odim-zookeeper
+      app: zookeeper
+      instance: zookeeper3
+      parentdeployment: odim-ra
