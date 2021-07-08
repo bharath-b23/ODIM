@@ -32,10 +32,9 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-                - key: "unit"
+                - key: "instance"
                   operator: In
-                  values:
-                  - zookeeper
+                  values: ["zookeeper2", "zookeeper3"]
             topologyKey: "kubernetes.io/hostname"
       containers:
         - name: zookeeper1
@@ -129,10 +128,9 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-                - key: "unit"
+                - key: "instance"
                   operator: In
-                  values:
-                  - zookeeper
+                  values: ["zookeeper1", "zookeeper3"]
             topologyKey: "kubernetes.io/hostname"
       containers:
         - name: zookeeper2
@@ -226,10 +224,9 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-                - key: "unit"
+                - key: "instance"
                   operator: In
-                  values:
-                  - zookeeper
+                  values: ["zookeeper1", "zookeeper2"]
             topologyKey: "kubernetes.io/hostname"
       containers:
         - name: zookeeper3
