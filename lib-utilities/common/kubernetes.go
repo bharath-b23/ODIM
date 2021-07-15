@@ -43,12 +43,14 @@ func updateConfig() {
 	K8sODIMNamespace, exists = os.LookupEnv("ODIM_NAMESPACE")
 	if !exists {
 		log.Info("ODIM_NAMESPACE environment variable not found, not a kubernetes deployment")
+		return
 	}
 	if K8sODIMNamespace != "" {
 		isK8sDeployment = true
 	} else {
 		log.Fatalf("value not set for ODIM_NAMESPACE environment variable")
 	}
+	return
 }
 
 // IsK8sDeployment is for finding out if it is kubernetes deployment
