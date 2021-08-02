@@ -1,0 +1,84 @@
+---
+- name: Get the current user
+  local_action: command whoami
+  become: false
+  register: get_user
+
+- name: Set current_user fact
+  set_fact:
+    current_user: "{{ get_user.stdout }}"
+
+- name: Include user defined configurations
+  include_vars: "/home/jeevan/BharathB/bharath-b-hpe/ODIM/odim-controller/scripts/kube_deploy_nodes.yaml"
+
+- name: Install packages required by nginx
+  apt:
+    pkg:
+    - curl
+    - gnupg2
+    - ca-certificates
+    - lsb-release
+    force_apt_get: yes
+
+- name: Remove nginx if already installed
+  apt:
+    pkg:
+    - nginx
+    - nginx-common
+    - nginx-core
+    force_apt_get: yes
+    autoremove: yes
+    purge: yes
+    state: absent
+
+- name: Clean up previously installed data
+  file:
+    path: /var/www/html
+    state: absent
+  ignore_errors: true
+
+- name: Install nginx=1.14.0-0ubuntu1.9 package
+  apt:
+    name: nginx=1.14.0-0ubuntu1.9
+    force_apt_get: yes
+
+- name: Create directories required for nginx
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ current_user }}"
+    group: "{{ current_user }}"
+    mode: 0750
+    recurse: yes
+  loop:
+    - /opt/nginx/servers
+    - /opt/nginx/certs
+    - "{{ odimra.nginxLogPath }}"
+
+- name: Create nginx log files
+  file:
+    path: "{{ item }}"
+    state: touch
+    owner: "{{ current_user }}"
+    group: "{{ current_user }}"
+    mode: 0640
+  loop:
+    - "{{ odimra.nginxLogPath }}/error.log"
+    - "{{ odimra.nginxLogPath }}/access.log"
+
+- name: Replace nginx configuration file
+  template:
+    src: "templates/nginx.conf.j2"
+    dest: /etc/nginx/nginx.conf
+  with_items:
+    - nginxLogPath: "{{ odimra.nginxLogPath }}"
+
+- name: Remove configured default nginx server
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  ignore_errors: true
+
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: yes

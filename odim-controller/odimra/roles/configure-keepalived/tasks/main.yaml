@@ -1,0 +1,78 @@
+---
+- name: Get the current user
+  local_action: command whoami
+  become: false
+  register: get_user
+
+- name: Set current_user fact
+  set_fact:
+    current_user: "{{ get_user.stdout }}"
+
+- name: Include user defined configurations
+  include_vars: "/home/jeevan/BharathB/bharath-b-hpe/ODIM/odim-controller/scripts/kube_deploy_nodes.yaml"
+
+- name: Install keepalived=1:1.3.9-1ubuntu0.18.04.2 package
+  apt:
+    pkg:
+    - linux-headers-4.15.0-128-generic
+    - keepalived=1:1.3.9-1ubuntu0.18.04.2
+    force_apt_get: yes
+
+- name: Create directories required by keepalived service
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+    recurse: yes
+  loop:
+    - /opt/keepalived/bin
+    - /opt/keepalived/logs
+
+- name: Copy keepalived action script
+  copy:
+    src: "templates/action_script.sh.j2"
+    dest: /opt/keepalived/bin/action_script.sh
+    owner: root
+    group: root
+    mode: 0500
+
+- set_fact:
+    cur_host_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+- name: Get interface name of {{ ansible_default_ipv4.address }}({{ ansible_hostname }})
+  shell: netstat -ie | grep -B1 "{{ cur_host_ip }}" | head -n1 | awk '{print $1}' | cut -d':' -f1
+  register: interface
+
+- set_fact: 
+    interfaceName: "{{ interface.stdout }}"
+
+- set_fact:
+    priority: "{{ hostvars[inventory_hostname]['groups']['all'].index(inventory_hostname) }}"
+
+- name: Copy keepalived configuration file
+  template:
+    src: "templates/keepalived.conf.j2"
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: 0600
+  with_items:
+    - routerID: "{{ inventory_hostname }}"
+      interfaceName: "{{ interfaceName }}"
+      virtualRouterID: 100
+      priority: "{{ priority|int + 100 }}"
+      virtualIP: 10.42.0.203
+
+- name: Enable keepalived systemd service
+  systemd:
+    name: keepalived
+    enabled: yes
+    masked: no
+
+- name: Start keepalived service
+  systemd:
+    name: keepalived
+    state: restarted
+    daemon_reload: yes
