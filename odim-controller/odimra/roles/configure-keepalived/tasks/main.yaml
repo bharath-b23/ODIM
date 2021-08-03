@@ -28,8 +28,6 @@
 
 - set_fact: 
     interfaceName: "{{ interface.stdout }}"
-
-- set_fact:
     priority: "{{ hostvars[inventory_hostname]['groups']['all'].index(inventory_hostname) }}"
 
 - name: Install keepalived=1:1.3.9-1ubuntu0.18.04.2 package
