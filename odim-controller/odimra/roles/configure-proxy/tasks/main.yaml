@@ -1,16 +1,4 @@
 ---
-- name: Get the current user
-  local_action: command whoami
-  become: false
-  register: get_user
-
-- name: Set current_user fact
-  set_fact:
-    current_user: "{{ get_user.stdout }}"
-
-- name: Include user defined configurations
-  include_vars: "/home/jeevan/BharathB/bharath-b-hpe/ODIM/odim-controller/scripts/kube_deploy_nodes.yaml"
-
 - name: Install packages required by nginx
   apt:
     pkg:
@@ -37,11 +25,6 @@
     state: absent
   ignore_errors: true
 
-- name: Install nginx=1.14.0-0ubuntu1.9 package
-  apt:
-    name: nginx=1.14.0-0ubuntu1.9
-    force_apt_get: yes
-
 - name: Create directories required for nginx
   file:
     path: "{{ item }}"
@@ -66,12 +49,20 @@
     - "{{ odimra.nginxLogPath }}/error.log"
     - "{{ odimra.nginxLogPath }}/access.log"
 
+- name: Install nginx=1.14.0-0ubuntu1.9 package
+  apt:
+    name: nginx=1.14.0-0ubuntu1.9
+    force_apt_get: yes
+
 - name: Replace nginx configuration file
   template:
     src: "templates/nginx.conf.j2"
     dest: /etc/nginx/nginx.conf
+    validate: 'nginx -t -c %s'
   with_items:
-    - nginxLogPath: "{{ odimra.nginxLogPath }}"
+    - logPath: "{{ odimra.nginxLogPath }}"
+      user: "{{ odim_owner_name }}"
+      group: "{{ odim_owner_name }}"
 
 - name: Remove configured default nginx server
   file:

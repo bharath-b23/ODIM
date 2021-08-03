@@ -1,7 +1,4 @@
 ---
-- name: Include user defined configurations
-  include_vars: "/home/jeevan/BharathB/bharath-b-hpe/ODIM/odim-controller/scripts/kube_deploy_nodes.yaml"
-
 - name: Stop nginx service
   systemd:
     name: nginx

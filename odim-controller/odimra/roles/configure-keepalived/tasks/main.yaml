@@ -1,23 +1,4 @@
 ---
-- name: Get the current user
-  local_action: command whoami
-  become: false
-  register: get_user
-
-- name: Set current_user fact
-  set_fact:
-    current_user: "{{ get_user.stdout }}"
-
-- name: Include user defined configurations
-  include_vars: "/home/jeevan/BharathB/bharath-b-hpe/ODIM/odim-controller/scripts/kube_deploy_nodes.yaml"
-
-- name: Install keepalived=1:1.3.9-1ubuntu0.18.04.2 package
-  apt:
-    pkg:
-    - linux-headers-4.15.0-128-generic
-    - keepalived=1:1.3.9-1ubuntu0.18.04.2
-    force_apt_get: yes
-
 - name: Create directories required by keepalived service
   file:
     path: "{{ item }}"
@@ -41,7 +22,7 @@
 - set_fact:
     cur_host_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
-- name: Get interface name of {{ ansible_default_ipv4.address }}({{ ansible_hostname }})
+- name: Get interface name of {{ cur_host_ip }}({{ inventory_hostname }})
   shell: netstat -ie | grep -B1 "{{ cur_host_ip }}" | head -n1 | awk '{print $1}' | cut -d':' -f1
   register: interface
 
@@ -51,6 +32,13 @@
 - set_fact:
     priority: "{{ hostvars[inventory_hostname]['groups']['all'].index(inventory_hostname) }}"
 
+- name: Install keepalived=1:1.3.9-1ubuntu0.18.04.2 package
+  apt:
+    pkg:
+    - linux-headers-4.15.0-128-generic
+    - keepalived=1:1.3.9-1ubuntu0.18.04.2
+    force_apt_get: yes
+
 - name: Copy keepalived configuration file
   template:
     src: "templates/keepalived.conf.j2"
@@ -59,11 +47,11 @@
     group: root
     mode: 0600
   with_items:
-    - routerID: "{{ inventory_hostname }}"
-      interfaceName: "{{ interfaceName }}"
-      virtualRouterID: 100
+    - routerID: "{{ inventory_hostname | mandatory }}"
+      interfaceName: "{{ interfaceName | mandatory }}"
+      virtualRouterID: "{{ odimra.virtualRouterID | mandatory }}"
       priority: "{{ priority|int + 100 }}"
-      virtualIP: 10.42.0.203
+      virtualIP: "{{ odimra.virtualIP | mandatory }}"
 
 - name: Enable keepalived systemd service
   systemd:
@@ -76,3 +64,6 @@
     name: keepalived
     state: restarted
     daemon_reload: yes
+
+- name: Check status of keepalived service
+  command: systemctl is-active keepalived
