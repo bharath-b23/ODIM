@@ -6,7 +6,7 @@
 - name: Update nginx conf with added nodes in all existing nodes
   block:
     - set_fact:
-        cur_host_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+        cur_host_ip: "{{ hostvars[host_item].ansible_host }}"
     
     - set_fact:
         serverlist: ["server {{ cur_host_ip }}:{{ odimra.apiNodePort }} max_fails=2 fail_timeout=10s;"]
@@ -54,18 +54,18 @@
 - name: Update nginx conf with removed nodes in all existing nodes
   block:
     - name: Get the list of all nginx conf files at /opt/nginx/servers
-      raw: find /opt/nginx/servers -type f -name "*.conf"
-      register: conf_files
+      find:
+        paths: "/opt/nginx/servers"
+        file_type: file
+      register: conf_dir
       delegate_to: "{{ host_item }}"
 
+    - set_fact:
+        matchString: "{{ 'server ' + hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
     - name: Delete {{ inventory_hostname }} from nginx conf files
-      lineinfile:
-        path: "{{ item[0] }}"
-        state: absent
-        search_string: "{{ 'server ' + hostvars[item[1]]['ansible_default_ipv4']['address'] }}"
-      with_nested:
-        - '{{ conf_files.stdout_lines }}'
-        - '{{ nodes_list }}'
+      command: "sed -i '/{{ matchString }}/d' {{ item.path }}"
+      loop: "{{ conf_dir.files }}"
       delegate_to: "{{ host_item }}"
   when:
     - scenario is defined and scenario == 'rm-node'

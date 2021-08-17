@@ -1,3 +1,4 @@
+---
 - set_fact:
     plugin_name: "{{ item.path.split('/')[-1] }}"
 
@@ -14,7 +15,7 @@
 - name: Prepare and copy proxy conf for {{ plugin_name }} service
   block:
     - set_fact:
-        cur_host_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+        cur_host_ip: "{{ hostvars[host_item].ansible_host }}"
         node_port: "{{ hostvars[inventory_hostname][plugin_name]['eventListenerNodePort'] }}"
         proxy_port: "{{ hostvars[inventory_hostname][plugin_name]['lbPort'] }}"
 
