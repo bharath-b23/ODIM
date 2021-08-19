@@ -1613,30 +1613,45 @@ def remove_plugin(plugin_name):
 def init_log():
 	global logger, logger_u, logger_f
 
+	# check if log path is set and use it for storing
+	# log file else create log file in current dir
 	oclp_env = os.getenv("ODIM_CONTROLLER_LOG_PATH", "./")
 	logPath = os.path.join(oclp_env, CONTROLLER_LOG_FILE)
 
+	# logger is for logging the with the configured log
+	# format to both console and the log file
 	logger = logging.getLogger('odim-controller')
 	logger.setLevel(logging.DEBUG)
 
+	# logger_u is for logging plain logs without log level,
+	# timestamp or any other tags(unformatted) to both
+	# console and the log file
 	logger_u = logging.getLogger('logger_u')
 	logger_u.setLevel(logging.DEBUG)
 
+	# logger_f is for logging plain logs without log level,
+	# timestamp or any other tags(unformatted) only to log file
 	logger_f = logging.getLogger('logger_f')
 	logger_f.setLevel(logging.DEBUG)
 
+	# consoleHdlr is the log handler to log to stdout
 	consoleHdlr = logging.StreamHandler()
 	consoleHdlr.setLevel(logging.DEBUG)
 
+	# fileHdlr is the log handler to log to file
 	fileHdlr = RotatingFileHandler(logPath, mode = 'a', maxBytes=MAX_LOG_FILE_SIZE, backupCount=1, encoding=None, delay=0)
 	fileHdlr.setLevel(logging.DEBUG)
 
+	# consoleHdlr is the unformatted log handler to log to stdout
 	consoleHdlr_u = logging.StreamHandler()
 	consoleHdlr_u.setLevel(logging.DEBUG)
 
+	# fileHdlr is the unformatetd log handler to log to file
 	fileHdlr_u = RotatingFileHandler(logPath, mode = 'a', maxBytes=MAX_LOG_FILE_SIZE, backupCount=1, encoding=None, delay=0)
 	fileHdlr_u.setLevel(logging.DEBUG)
 
+	# logFormatter is for defining the log format, which will contain
+	# timestamp, logger name, log level and the log
 	logFormatter = logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)-5s - %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
 	consoleHdlr.setFormatter(logFormatter)
 	fileHdlr.setFormatter(logFormatter)
@@ -1656,7 +1671,7 @@ def main():
 	groups = [grp.getgrgid(g).gr_name for g in os.getgroups()]
 
 	logger_f.info("----------------------------------------------------------\n")
-	logger_f.info("%s - %s invoked by user \"%s\": groups %s: options %s",
+	logger_f.info("%s - %s invoked by user: \"%s\"\n\tgroups: %s\n\toptions: %s",
 			time.strftime("%Y-%m-%d %H:%M:%S"), sys.argv[0], user, groups, str(sys.argv[1:]))
 
 	parser = argparse.ArgumentParser(description='ODIM controller')
