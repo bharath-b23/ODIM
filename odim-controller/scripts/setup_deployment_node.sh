@@ -29,7 +29,7 @@ install_pypkgs()
 	python3 -m pip install -U --proxy=${http_proxy} setuptools
 	_if_ne_0_exit_ $? "failed to install python pip tool"
 
-        sudo -H pip3 install -I --proxy=${http_proxy} pycryptodome==3.9.8 \
+	sudo -H pip3 install -I --proxy=${http_proxy} pycryptodome==3.9.8 \
 	ansible==2.9.6 \
 	jinja2==2.11.1 \
 	netaddr==0.7.19 \
@@ -272,7 +272,6 @@ build_odim_vault()
 		echo "[$(date)] -- ERROR -- ${ODIMRA_SRC_PATH}/odim-controller/scripts does not exist"
 		exit 1
 	fi
-
 
 	echo "[$(date)] -- INFO  -- compile and build odim-vault tool"
 	cur_dir=$(pwd 2>/dev/null)

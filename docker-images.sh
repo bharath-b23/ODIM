@@ -41,7 +41,7 @@ eval_cmd_exec()
         if [[ $1 -eq 0 ]]; then
 		echo "[$(date)] -- INFO  -- $4"
 	else
-                echo "[$(date)] -- ERROR -- $2"
+		echo "[$(date)] -- ERROR -- $2"
 		echo "$3"
         fi
 }
@@ -49,7 +49,7 @@ eval_cmd_exec()
 load_images()
 {
         for image in "${!images_list[@]}"; do
-                output=$(docker load -i ${DIR_PATH}/${image}.tar 2>&1)
+		output=$(docker load -i ${DIR_PATH}/${image}.tar 2>&1)
 		eval_cmd_exec $? "failed to load ${DIR_PATH}/${image}.tar" \
 		"$output" "Successfully loaded ${DIR_PATH}/${image}.tar"
         done
@@ -61,7 +61,7 @@ load_images()
 save_images()
 {
         for image in "${!images_list[@]}"; do
-                output=$(docker save -o ${DIR_PATH}/${image}.tar ${image}:${images_list[${image}]} 2>&1)
+		output=$(docker save -o ${DIR_PATH}/${image}.tar ${image}:${images_list[${image}]} 2>&1)
 		eval_cmd_exec $? "failed to save ${image}:${images_list[${image}]} as ${DIR_PATH}/${image}.tar" \
 		"$output" "Successfully saved ${image}:${images_list[${image}]} as ${DIR_PATH}/${image}.tar"
         done
