@@ -95,7 +95,7 @@ func checkPluginStatus(phc *agcommon.PluginHealthCheckInterface, plugin agmodel.
 		switch {
 		case count != 0 && active:
 			agcommon.SetPluginStatusRecord(plugin.ID, 0)
-			if plugin.PluginType != "Compute" {
+			if plugin.PluginType == "Compute" {
 				if err := sharePluginInventory(plugin, true, plugin.IP); err != nil {
 					log.Error("failed to update server inventory of plugin " +
 							plugin.ID + ": " + err.Error())
