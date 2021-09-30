@@ -58,7 +58,7 @@ func main() {
 
 	// CreateJobQueue defines the queue which will act as an infinite buffer
 	// In channel is an entry or input channel and the Out channel is an exit or output channel
-	dphandler.In, dphandler.Out = common.CreateJobQueue()
+	dphandler.In, dphandler.Out = common.CreateJobQueue(10)
 
 	// RunReadWorkers will create a worker pool for doing a specific task
 	// which is passed to it as Publish method after reading the data from the channel.
