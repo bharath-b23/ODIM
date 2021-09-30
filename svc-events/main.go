@@ -66,14 +66,16 @@ func main() {
 
 	// CreateJobQueue defines the queue which will act as an infinite buffer
 	// In channel is an entry or input channel and the Out channel is an exit or output channel
-	consumer.In, consumer.Out = common.CreateJobQueue(10)
+	jobQueueSize := 10
+	consumer.In, consumer.Out = common.CreateJobQueue(jobQueueSize)
 	// RunReadWorkers will create a worker pool for doing a specific task
 	// which is passed to it as PublishEventsToDestination method after reading the data from the channel.
 	common.RunReadWorkers(consumer.Out, evt.PublishEventsToDestination, 5)
 
 	// CreateJobQueue defines the queue which will act as an infinite buffer
 	// In channel is an entry or input channel and the Out channel is an exit or output channel
-	consumer.CtrlMsgRecvQueue, consumer.CtrlMsgProcQueue = common.CreateJobQueue(1)
+	ctrlMsgProcQueueSize := 1
+	consumer.CtrlMsgRecvQueue, consumer.CtrlMsgProcQueue = common.CreateJobQueue(ctrlMsgProcQueueSize)
 	// RunReadWorkers will create a worker pool for doing a specific task
 	// which is passed to it as ProcessCtrlMsg method after reading the data from the channel.
 	common.RunReadWorkers(consumer.CtrlMsgProcQueue, evcommon.ProcessCtrlMsg, 1)
