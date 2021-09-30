@@ -14,10 +14,7 @@
 package main
 
 import (
-	"net/http"
 	"os"
-	"runtime"
-	"time"
 
 	dc "github.com/ODIM-Project/ODIM/lib-messagebus/datacommunicator"
 	"github.com/ODIM-Project/ODIM/lib-rest-client/pmbhandle"
