@@ -43,7 +43,6 @@ func TestConsume(t *testing.T) {
 }
 
 func TestKafkaSubscriber(t *testing.T) {
-	done := make(chan bool)
 	In, Out = common.CreateJobQueue(1)
 	eventMessage := common.MessageData{
 		Name:    "Event",
@@ -76,7 +75,6 @@ func TestKafkaSubscriber(t *testing.T) {
 		wg.Done()
 	}()
 	time.Sleep(2 * time.Second)
-	<-done
 	close(In)
 	wg.Wait()
 
